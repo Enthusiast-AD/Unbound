@@ -1,7 +1,6 @@
-import "./env.loader.ts";
-
 import { app }from "./app.ts"
 import connectDB from "./config/db.ts"
+import "./lib/bullmq.ts"
 import env from "./config/env.ts";
 
 const PORT = env.PORT || 8000;
