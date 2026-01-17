@@ -19,6 +19,13 @@ app.use(express.urlencoded({ extended: true, limit: '16kb' }))
 app.use(express.static('public')) 
 app.use(cookieParser())
 
+// import routes
+import bookRoutes from "./routes/book.routes.ts";
+
+
+// use routes
+app.use('/api/books', bookRoutes)
+
 app.use('/api/uploadthing', createRouteHandler({
     router: uploadRouter,
     config: {token: env.UPLOADTHING_TOKEN}
