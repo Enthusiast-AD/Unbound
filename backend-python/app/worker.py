@@ -31,18 +31,24 @@ async def process_pdf(job, token):
             {"$set": {"processingStatus": "processing"}}
         )
 
-        # B. Run Docling (Heavy Lifting)
-        markdown_content = parser.process_file(file_url)
-        print(f"✅ [Worker] PDF Parsed! Length: {len(markdown_content)} chars")
+        # B. Run Docling (returns a dictionary)
+        result = parser.process_file(file_url)
+        
+        markdown_content = result["content"]
+        structure = result["structure"]
+        page_count = result["page_count"]
+
+        print(f"✅ [Worker] Structure extracted! Found {len(structure)} top-level chapters.")
 
         # C. Update DB -> Completed
-        # (Later we will save the actual structure here)
         books_collection.update_one(
             {"_id": ObjectId(book_id)}, 
             {
                 "$set": {
                     "processingStatus": "completed",
-                    "pageCount": 10 # Mock for now
+                    "structure": structure,        # <--- Saving the Tree!
+                    "pageCount": page_count,
+                    "content": markdown_content    # (Optional) Store full text in DB
                 }
             }
         )
