@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -12,6 +15,11 @@ class Settings(BaseSettings):
     
     # AI Keys
     GEMINI_API_KEY: str
+
+    # Pinecone
+    PINECONE_API_KEY: str
+    PINECONE_INDEX_NAME: str = "unbound-index"
+
 
     class Config:
         env_file = ".env"

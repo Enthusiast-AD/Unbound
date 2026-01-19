@@ -3,6 +3,8 @@ import os
 from bullmq import Worker
 from app.core.config import settings
 from app.services.ingestion.docling_parser import DoclingParserService
+from app.services.ingestion.chunking import ChunkingService   
+from app.services.llm.vector_store import VectorStoreService
 from pymongo import MongoClient
 from bson import ObjectId
 
@@ -13,6 +15,10 @@ books_collection = db.books
 
 # 2. Initialize Parser
 parser = DoclingParserService()
+
+# 3. Initialize Chunker and Vector Store
+chunker = ChunkingService()          
+vector_store = VectorStoreService()
 
 async def process_pdf(job, token):
     """
@@ -40,7 +46,15 @@ async def process_pdf(job, token):
 
         print(f"✅ [Worker] Structure extracted! Found {len(structure)} top-level chapters.")
 
-        # C. Update DB -> Completed
+        # C. Chunking
+        print("✂️  Chunking text...")
+        chunks = chunker.chunk_text(markdown_content, metadata={"source": file_url})
+        
+        # D. Embedding & Storing
+        print("🧠 Embedding and storing vectors...")
+        vector_store.add_chunks(chunks, book_id)
+
+        # E. Update DB -> Completed
         books_collection.update_one(
             {"_id": ObjectId(book_id)}, 
             {
@@ -48,7 +62,7 @@ async def process_pdf(job, token):
                     "processingStatus": "completed",
                     "structure": structure,        # <--- Saving the Tree!
                     "pageCount": page_count,
-                    "content": markdown_content    # (Optional) Store full text in DB
+                    # "content": markdown_content    # (Optional) Store full text in DB
                 }
             }
         )
