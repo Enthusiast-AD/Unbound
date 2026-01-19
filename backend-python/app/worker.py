@@ -31,6 +31,12 @@ async def process_pdf(job, token):
 
         print(f"🚀 [Worker] Received Job for Book: {book_id}")
 
+        # Check if book is already completed
+        existing_book = books_collection.find_one({"_id": ObjectId(book_id)})
+        if existing_book and existing_book.get("processingStatus") == "completed":
+            print(f"⚠️ [Worker] Book {book_id} is already completed. Skipping duplicate job.")
+            return {"status": "skipped", "reason": "already_completed"}
+
         # A. Update DB -> Processing
         books_collection.update_one(
             {"_id": ObjectId(book_id)}, 
@@ -87,7 +93,9 @@ async def main():
         {"connection": {
             "host": settings.REDIS_HOST, 
             "port": settings.REDIS_PORT
-        }}
+        },
+        "lockDuration": 60000 # Give the worker 60s before Redis retries
+        }
     )
     
     print(f"👷 Python Worker Listening on Queue: pdfQueue...")
