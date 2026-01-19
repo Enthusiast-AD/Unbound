@@ -9,4 +9,7 @@ docling
 langchain
 langchain-community
 langchain-google-genai
-chromadb
+langchain-pinecone
+langchain-huggingface
+pinecone-client
+sentence-transformers
