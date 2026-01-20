@@ -68,7 +68,7 @@ async def process_pdf(job, token):
                     "processingStatus": "completed",
                     "structure": structure,        # <--- Saving the Tree!
                     "pageCount": page_count,
-                    # "content": markdown_content    # (Optional) Store full text in DB
+                    "content": markdown_content   
                 }
             }
         )

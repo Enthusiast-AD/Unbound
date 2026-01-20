@@ -37,3 +37,23 @@ export const createBook = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
+
+// Get Book by ID with full details
+export const getBook = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    const book = await Book.findById(id);
+
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    // Return everything (Title, Structure, Content, Status)
+    res.status(200).json(book);
+
+  } catch (error) {
+    console.error("Get Book Error:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
