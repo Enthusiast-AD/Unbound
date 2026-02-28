@@ -2,12 +2,11 @@
 
 import React, { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import styles from "./HowItWorks.module.css";
+import { UploadCloud, Brain, GraduationCap } from "lucide-react";
 
 export default function HowItWorks() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Scroll parallax for the beam or background
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"],
@@ -16,155 +15,74 @@ export default function HowItWorks() {
   const beamX = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
 
-  const cards = [
+  const steps = [
     {
       id: 1,
       title: "Upload Content",
-      description:
-        "Drag & drop your textbooks, lecture notes, or research papers.",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-          <polyline points="17 8 12 3 7 8" />
-          <line x1="12" y1="3" x2="12" y2="15" />
-        </svg>
-      ),
+      description: "Drag & drop your textbooks, lecture notes, or research papers.",
+      icon: <UploadCloud className="w-8 h-8 text-primary" />,
     },
     {
       id: 2,
       title: "AI Analysis",
-      description:
-        "Unbound analyzes structure, concepts, and generates a knowledge graph.",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M12 2a3 3 0 0 1 3 3v.2a6 6 0 0 1 5.2 9.8 4 4 0 0 1-1.7 4.2 6 6 0 0 1-6.5.9 4 4 0 0 1-1.6-4.6A6 6 0 0 1 6.8 6.4 3 3 0 0 1 12 2Z" />
-        </svg>
-      ),
+      description: "Unbound analyzes structure, concepts, and generates a knowledge graph.",
+      icon: <Brain className="w-8 h-8 text-primary" />,
     },
     {
       id: 3,
       title: "Start Learning",
-      description:
-        "Chat with your book, take quizzes, and master the material deeply.",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-        </svg>
-      ),
+      description: "Chat with your book, take quizzes, and master the material deeply.",
+      icon: <GraduationCap className="w-8 h-8 text-primary" />,
     },
   ];
 
   return (
-    <section className={styles.container} id="working" ref={containerRef}>
+    <section id="working" ref={containerRef} className="py-24 relative overflow-hidden">
       {/* Background ambient effect */}
       <motion.div
-        className={styles.gradientBlob}
+        className="absolute top-1/2 left-0 w-full h-64 bg-gradient-to-r from-transparent via-primary/10 to-transparent blur-3xl -translate-y-1/2 pointer-events-none"
         style={{
           x: beamX,
           opacity: opacity,
         }}
       />
 
-      <div
-        className="section-header"
-        style={{ position: "relative", zIndex: 10 }}
-      >
-        <h2 className="section-title">How It Works</h2>
-        <p className="section-subtitle">
-          From PDF to interactive tutor in seconds
-        </p>
-      </div>
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="text-center max-w-3xl mx-auto mb-20">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
+          <p className="text-lg text-muted-foreground">Three simple steps to transform your learning experience.</p>
+        </div>
 
-      <div className={styles.grid}>
-        {cards.map((card, index) => (
-          <motion.div
-            key={card.id}
-            className={styles.card}
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.2 }}
-            viewport={{ once: true }}
-            whileHover={{
-              y: -10,
-              boxShadow:
-                "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-              borderColor: "var(--primary)",
-            }}
-          >
-            {/* Spotlight Beam Effect on Card Hover */}
-            <motion.div
-              className=""
-              style={{
-                position: "absolute",
-                inset: 0,
-                background:
-                  "radial-gradient(circle at center, var(--primary-light) 0%, transparent 70%)",
-                opacity: 0,
-                zIndex: 0,
-                pointerEvents: "none",
-              }}
-              whileHover={{ opacity: 0.2 }}
+        <div className="grid md:grid-cols-3 gap-12 relative">
+          {/* Connecting line for desktop */}
+          <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-0.5 bg-border -z-10">
+            <motion.div 
+              className="h-full bg-primary"
+              style={{ scaleX: scrollYProgress, transformOrigin: "left" }}
             />
+          </div>
 
-            <div className={styles.iconWrapper}>
-              {card.icon}
-              <span className={styles.badge}>{card.id}</span>
-
-              {/* Spinning/Pulsing Pulse around Icon */}
-              <motion.div
-                style={{
-                  position: "absolute",
-                  inset: -5,
-                  borderRadius: "50%",
-                  border: "2px solid var(--primary)",
-                  borderTopColor: "transparent",
-                  borderLeftColor: "transparent",
-                  opacity: 0.5,
-                }}
-                animate={{ rotate: 360 }}
-                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-              />
-            </div>
-
-            <h3 className={styles.title}>{card.title}</h3>
-            <p className={styles.description}>{card.description}</p>
-          </motion.div>
-        ))}
-
-        {/* Animated Connecting Beam (Horizontal SVG) */}
-        {/* We place this absolutely over the grid to draw lines between cards if needed, 
-            but for responsive grid, a subtle background beam is safer */}
+          {steps.map((step, index) => (
+            <motion.div
+              key={step.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, delay: index * 0.2 }}
+              className="relative flex flex-col items-center text-center"
+            >
+              <div className="w-24 h-24 rounded-full bg-card border-4 border-background shadow-xl flex items-center justify-center mb-8 relative z-10">
+                <div className="absolute inset-0 rounded-full bg-primary/5 animate-ping-slow"></div>
+                {step.icon}
+                <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shadow-md">
+                  {step.id}
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold mb-4">{step.title}</h3>
+              <p className="text-muted-foreground leading-relaxed max-w-xs">{step.description}</p>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );
