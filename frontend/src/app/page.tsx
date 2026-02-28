@@ -2,31 +2,27 @@
 
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { Sun, Moon, BookOpen, BrainCircuit, FileQuestion, MessageSquare, Smartphone, Zap, Check, ArrowRight, Twitter, Github, Linkedin, LogOut } from "lucide-react";
 import HowItWorks from "../components/HowItWorks";
+import AuthModal from "../components/AuthModal";
+import { useAuth } from "../context/AuthContext";
 
 export default function Home() {
   const [theme, setTheme] = useState("light");
   const [isAnnual, setIsAnnual] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
-
-  const navbarRef = useRef<HTMLElement>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
-    // 1. Check Local Storage or System Preference
     const savedTheme = localStorage.getItem("theme");
-    const systemPrefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    ).matches;
-
-    // Default to what was saved or system preference
+    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const currentTheme = savedTheme || (systemPrefersDark ? "dark" : "light");
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTheme(currentTheme);
     document.documentElement.setAttribute("data-theme", currentTheme);
   }, []);
 
-  // Sync theme changes
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
@@ -34,23 +30,14 @@ export default function Home() {
     document.documentElement.setAttribute("data-theme", newTheme);
   };
 
-  // Scroll effect
   useEffect(() => {
     const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      if (navbarRef.current) {
-        if (scrollTop > 50) {
-          navbarRef.current.style.boxShadow = "var(--shadow-md)";
-        } else {
-          navbarRef.current.style.boxShadow = "var(--shadow-sm)";
-        }
-      }
+      setIsScrolled(window.scrollY > 50);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Smooth scroll handler
   const smoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
     const target = document.querySelector(id);
@@ -59,276 +46,153 @@ export default function Home() {
     }
   };
 
+  const features = [
+    {
+      icon: <BookOpen className="w-6 h-6 text-primary" />,
+      title: "Smart Structure Extraction",
+      description: "Automatic conversion of PDFs into navigable, hierarchical content with preserved chapters and sections."
+    },
+    {
+      icon: <BrainCircuit className="w-6 h-6 text-primary" />,
+      title: "AI Tutor Assistant",
+      description: "Context-aware AI that answers questions directly from your textbook with cited sources."
+    },
+    {
+      icon: <FileQuestion className="w-6 h-6 text-primary" />,
+      title: "Auto-Generated Quizzes",
+      description: "Intelligent quiz generation based on chapter content with multiple learning modes."
+    },
+    {
+      icon: <MessageSquare className="w-6 h-6 text-primary" />,
+      title: "Socratic Tutoring Mode",
+      description: "Interactive learning where the AI asks guiding questions to deepen understanding."
+    },
+    {
+      icon: <Smartphone className="w-6 h-6 text-primary" />,
+      title: "Responsive Design",
+      description: "Learn on any device - desktop, tablet, or mobile with seamless synchronization."
+    },
+    {
+      icon: <Zap className="w-6 h-6 text-primary" />,
+      title: "Instant Processing",
+      description: "Convert your PDFs in minutes, not hours, with advanced document parsing."
+    }
+  ];
+
   return (
-    <>
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary/30">
       {/* Navigation Header */}
-      <nav className="navbar" ref={navbarRef}>
-        <div className="nav-container">
-          <div className="logo">Unbound</div>
-          <div className="nav-links">
-            <a
-              href="#home"
-              className="nav-link"
-              onClick={(e) => smoothScroll(e, "#home")}
-            >
-              Home
-            </a>
-            <a
-              href="#features"
-              className="nav-link"
-              onClick={(e) => smoothScroll(e, "#features")}
-            >
-              Features
-            </a>
-            <a
-              href="#pricing"
-              className="nav-link"
-              onClick={(e) => smoothScroll(e, "#pricing")}
-            >
-              Pricing
-            </a>
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 border-b ${isScrolled ? "bg-background/80 backdrop-blur-md border-border shadow-sm py-3" : "bg-transparent border-transparent py-5"}`}>
+        <div className="container mx-auto px-6 flex justify-between items-center">
+          <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+            Unbound
           </div>
-          <div
-            className="nav-actions"
-            style={{ display: "flex", alignItems: "center", gap: "1rem" }}
-          >
-            <button
-              id="theme-toggle"
-              className="theme-btn"
-              aria-label="Toggle Theme"
-              onClick={toggleTheme}
-            >
-              <svg
-                className="sun-icon"
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                style={{ display: theme === "dark" ? "block" : "none" }}
-              >
-                <circle cx="12" cy="12" r="5"></circle>
-                <line x1="12" y1="1" x2="12" y2="3"></line>
-                <line x1="12" y1="21" x2="12" y2="23"></line>
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                <line x1="1" y1="12" x2="3" y2="12"></line>
-                <line x1="21" y1="12" x2="23" y2="12"></line>
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-              </svg>
-              <svg
-                className="moon-icon"
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                style={{ display: theme === "light" ? "block" : "none" }}
-              >
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-              </svg>
+          <div className="hidden md:flex items-center gap-8">
+            <a href="#home" onClick={(e) => smoothScroll(e, "#home")} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Home</a>
+            <a href="#features" onClick={(e) => smoothScroll(e, "#features")} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Features</a>
+            <a href="#pricing" onClick={(e) => smoothScroll(e, "#pricing")} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Pricing</a>
+          </div>
+          <div className="flex items-center gap-4">
+            <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-secondary transition-colors" aria-label="Toggle Theme">
+              {theme === "dark" ? <Sun className="w-5 h-5 text-muted-foreground hover:text-primary" /> : <Moon className="w-5 h-5 text-muted-foreground hover:text-primary" />}
             </button>
-            <button
-              id="signin"
-              className="SignIn-btn"
-              onClick={() => setIsAuthOpen(true)}
-            >
-              Sign In
-            </button>
+            {user ? (
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium hidden md:block">Hi, {user.firstName}</span>
+                <button onClick={logout} className="p-2 rounded-full hover:bg-secondary text-muted-foreground hover:text-destructive transition-colors" aria-label="Logout">
+                  <LogOut className="w-5 h-5" />
+                </button>
+                <a href="/dashboard" className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium transition-colors rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm">
+                  Dashboard
+                </a>
+              </div>
+            ) : (
+              <>
+                <button onClick={() => setIsAuthOpen(true)} className="hidden md:inline-flex items-center justify-center px-4 py-2 text-sm font-medium transition-colors rounded-full border border-border hover:bg-secondary hover:text-primary">
+                  Sign In
+                </button>
+                <button onClick={() => setIsAuthOpen(true)} className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium transition-colors rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm">
+                  Get Started
+                </button>
+              </>
+            )}
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section id="home" className="hero">
-        <div className="hero-container">
-          <div className="hero-content">
-            <h1 className="hero-title">
-              Transform Your Textbooks Into Interactive Learning Experiences
+      <section id="home" className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-background to-background"></div>
+        <div className="container mx-auto px-6 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-4xl mx-auto"
+          >
+            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
+              Transform Your Textbooks Into <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Interactive Learning</span>
             </h1>
-            <p className="hero-subtitle">
-              Turn static PDFs into dynamic, intelligent learning platforms with
-              built-in AI tutoring and interactive quizzes.
+            <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+              Turn static PDFs into dynamic, intelligent learning platforms with built-in AI tutoring and interactive quizzes.
             </p>
-            <div className="hero-buttons">
-              <button
-                className="btn btn-primary auth-trigger"
-                onClick={() => setIsAuthOpen(true)}
-              >
-                Get Started Free
-              </button>
-              <a href="#working" onClick={(e) => smoothScroll(e, "#working")}>
-                <button className="btn btn-secondary">See How It Works</button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              {user ? (
+                <a href="/dashboard" className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-medium transition-all rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5">
+                  Go to Dashboard <ArrowRight className="ml-2 w-5 h-5" />
+                </a>
+              ) : (
+                <button onClick={() => setIsAuthOpen(true)} className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-medium transition-all rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-primary/25 hover:-translate-y-0.5">
+                  Get Started Free <ArrowRight className="ml-2 w-5 h-5" />
+                </button>
+              )}
+              <a href="#working" onClick={(e) => smoothScroll(e, "#working")} className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-medium transition-all rounded-full border-2 border-border hover:border-primary hover:text-primary hover:bg-secondary">
+                See How It Works
               </a>
             </div>
-          </div>
-          <div className="hero-image">
-            <div className="image-placeholder">
-              <div
-                style={{ position: "relative", width: "100%", height: "100%" }}
-              >
-                <Image
-                  src="/hero-image.png"
-                  alt="Hero Image"
-                  fill
-                  style={{ borderRadius: "10px" }}
-                  priority
-                />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="mt-20 relative mx-auto max-w-5xl"
+          >
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-2xl blur opacity-20"></div>
+            <div className="relative rounded-2xl border border-border bg-card shadow-2xl overflow-hidden aspect-video flex items-center justify-center">
+              {/* Placeholder for Hero Image */}
+              <div className="absolute inset-0 bg-secondary/50 flex items-center justify-center">
+                <p className="text-muted-foreground font-medium">App Interface Preview</p>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="features">
-        <div className="section-header">
-          <h2 className="section-title">Powerful Features</h2>
-          <p className="section-subtitle">
-            Everything you need to master any subject
-          </p>
-        </div>
-        <div className="features-grid">
-          <div className="feature-card">
-            <div className="feature-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
-              </svg>
-            </div>
-            <h3 className="feature-title">Smart Structure Extraction</h3>
-            <p className="feature-description">
-              Automatic conversion of PDFs into navigable, hierarchical content
-              with preserved chapters and sections.
-            </p>
+      <section id="features" className="py-24 bg-secondary/30">
+        <div className="container mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Powerful Features</h2>
+            <p className="text-lg text-muted-foreground">Everything you need to master any subject, built right into your reading experience.</p>
           </div>
-          <div className="feature-card">
-            <div className="feature-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="p-8 rounded-2xl bg-card border border-border shadow-sm hover:shadow-md transition-all hover:-translate-y-1 group"
               >
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M12 16v-4"></path>
-                <path d="M12 8h.01"></path>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-              </svg>
-            </div>
-            <h3 className="feature-title">AI Tutor Assistant</h3>
-            <p className="feature-description">
-              Context-aware AI that answers questions directly from your
-              textbook with cited sources.
-            </p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                <path d="M12 8a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"></path>
-                <path d="M12 16h.01"></path>
-              </svg>
-            </div>
-            <h3 className="feature-title">Auto-Generated Quizzes</h3>
-            <p className="feature-description">
-              Intelligent quiz generation based on chapter content with multiple
-              learning modes.
-            </p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-              </svg>
-            </div>
-            <h3 className="feature-title">Socratic Tutoring Mode</h3>
-            <p className="feature-description">
-              Interactive learning where the AI asks guiding questions to deepen
-              understanding.
-            </p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                <line x1="8" y1="21" x2="16" y2="21"></line>
-                <line x1="12" y1="17" x2="12" y2="21"></line>
-              </svg>
-            </div>
-            <h3 className="feature-title">Responsive Design</h3>
-            <p className="feature-description">
-              Learn on any device - desktop, tablet, or mobile with seamless
-              synchronization.
-            </p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-              </svg>
-            </div>
-            <h3 className="feature-title">Instant Processing</h3>
-            <p className="feature-description">
-              Convert your PDFs in minutes, not hours, with advanced document
-              parsing.
-            </p>
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+                <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
@@ -336,333 +200,190 @@ export default function Home() {
       <HowItWorks />
 
       {/* Pricing Section */}
-      <section id="pricing" className="pricing">
-        <div className="section-header">
-          <h2 className="section-title">Simple Pricing</h2>
-          <p className="section-subtitle">Choose the plan that works for you</p>
+      <section id="pricing" className="py-24">
+        <div className="container mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple Pricing</h2>
+            <p className="text-lg text-muted-foreground mb-8">Choose the plan that works for you</p>
+            
+            <div className="flex items-center justify-center gap-4">
+              <span className={`text-sm font-medium ${!isAnnual ? "text-foreground" : "text-muted-foreground"}`}>Monthly</span>
+              <button 
+                onClick={() => setIsAnnual(!isAnnual)}
+                className="relative inline-flex h-6 w-11 items-center rounded-full bg-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background"
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isAnnual ? "translate-x-6" : "translate-x-1"}`} />
+              </button>
+              <span className={`text-sm font-medium flex items-center gap-2 ${isAnnual ? "text-foreground" : "text-muted-foreground"}`}>
+                Annually <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-bold">Save 20%</span>
+              </span>
+            </div>
+          </div>
 
-          {/* Pricing Toggle */}
-          <div className="pricing-toggle-container">
-            <span
-              className={`billing-label monthly ${!isAnnual ? "active" : ""}`}
-              onClick={() => setIsAnnual(false)}
-            >
-              Monthly
-            </span>
-            <label className="switch">
-              <input
-                type="checkbox"
-                id="billing-toggle"
-                checked={isAnnual}
-                onChange={(e) => setIsAnnual(e.target.checked)}
-              />
-              <span className="slider"></span>
-            </label>
-            <span
-              className={`billing-label annually ${isAnnual ? "active" : ""}`}
-              onClick={() => setIsAnnual(true)}
-            >
-              Annually <span className="discount-badge">Save 20%</span>
-            </span>
-          </div>
-        </div>
-        <div className="pricing-cards">
-          <div className="price-card">
-            <div className="plan-name">Starter</div>
-            <div className="plan-price">
-              <span className="currency">$</span>
-              <span className="amount">0</span>
-              <span className="period">/month</span>
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Starter Plan */}
+            <div className="p-8 rounded-3xl border border-border bg-card shadow-sm flex flex-col">
+              <h3 className="text-2xl font-bold mb-2">Starter</h3>
+              <p className="text-muted-foreground mb-6">Perfect for trying out Unbound</p>
+              <div className="mb-6 flex items-baseline">
+                <span className="text-4xl font-extrabold">$</span>
+                <div className="relative h-[40px] overflow-hidden inline-block w-[24px]">
+                  <AnimatePresence mode="popLayout">
+                    <motion.span
+                      key={isAnnual ? "0-annual" : "0-monthly"}
+                      initial={{ y: 40, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: -40, opacity: 0 }}
+                      transition={{ duration: 0.3, type: "spring", bounce: 0.4 }}
+                      className="inline-block text-4xl font-extrabold absolute"
+                    >
+                      0
+                    </motion.span>
+                  </AnimatePresence>
+                </div>
+                <span className="text-muted-foreground ml-1">/month</span>
+              </div>
+              <ul className="space-y-4 mb-8 flex-1">
+                <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /> <span>1 PDF upload per month</span></li>
+                <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /> <span>Basic AI tutor</span></li>
+                <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /> <span>Limited quiz generation</span></li>
+              </ul>
+              <button onClick={() => setIsAuthOpen(true)} className="w-full py-3 rounded-xl font-medium border-2 border-border hover:border-primary hover:text-primary transition-colors">
+                Get Started
+              </button>
             </div>
-            <p className="plan-description">Perfect for trying out Unbound</p>
-            <ul className="plan-features">
-              <li>✓ 1 PDF upload per month</li>
-              <li>✓ Basic AI tutor</li>
-              <li>✓ Limited quiz generation</li>
-              <li>✗ Socratic mode</li>
-            </ul>
-            <button
-              className="btn btn-secondary btn-full auth-trigger"
-              onClick={() => setIsAuthOpen(true)}
-            >
-              Get Started
-            </button>
-          </div>
-          <div className="price-card featured">
-            <div className="popular-badge">Most Popular</div>
-            <div className="plan-name">Professional</div>
-            <div className="plan-price">
-              <span className="currency">$</span>
-              <span className="amount">{isAnnual ? "24" : "29"}</span>
-              <span className="period">/month</span>
+
+            {/* Pro Plan */}
+            <div className="p-8 rounded-3xl border-2 border-primary bg-card shadow-xl relative flex flex-col transform md:-translate-y-4">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-bold tracking-wide">
+                MOST POPULAR
+              </div>
+              <h3 className="text-2xl font-bold mb-2">Professional</h3>
+              <p className="text-muted-foreground mb-6">For serious learners and educators</p>
+              <div className="mb-6 flex items-baseline">
+                <span className="text-4xl font-extrabold">$</span>
+                <div className="relative h-[40px] overflow-hidden inline-block w-[48px]">
+                  <AnimatePresence mode="popLayout">
+                    <motion.span
+                      key={isAnnual ? "24" : "29"}
+                      initial={{ y: 40, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: -40, opacity: 0 }}
+                      transition={{ duration: 0.3, type: "spring", bounce: 0.4 }}
+                      className="inline-block text-4xl font-extrabold absolute"
+                    >
+                      {isAnnual ? "24" : "29"}
+                    </motion.span>
+                  </AnimatePresence>
+                </div>
+                <span className="text-muted-foreground ml-1">/month</span>
+              </div>
+              <ul className="space-y-4 mb-8 flex-1">
+                <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /> <span>Unlimited PDF uploads</span></li>
+                <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /> <span>Advanced AI tutor</span></li>
+                <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /> <span>Unlimited quiz generation</span></li>
+                <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /> <span>Socratic tutoring mode</span></li>
+                <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /> <span>Priority support</span></li>
+              </ul>
+              <button onClick={() => setIsAuthOpen(true)} className="w-full py-3 rounded-xl font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg">
+                Upgrade to Pro
+              </button>
             </div>
-            <p className="plan-description">
-              For serious learners and educators
-            </p>
-            <ul className="plan-features">
-              <li>✓ Unlimited PDF uploads</li>
-              <li>✓ Advanced AI tutor</li>
-              <li>✓ Unlimited quizzes</li>
-              <li>✓ Socratic mode</li>
-            </ul>
-            <button
-              className="btn btn-primary btn-full auth-trigger"
-              onClick={() => setIsAuthOpen(true)}
-            >
-              Go For Professional
-            </button>
-          </div>
-          <div className="price-card">
-            <div className="plan-name">Enterprise</div>
-            <div className="plan-price">Custom</div>
-            <p className="plan-description">
-              For institutions and organizations
-            </p>
-            <ul className="plan-features">
-              <li>✓ Everything in Professional</li>
-              <li>✓ Custom AI models</li>
-              <li>✓ Admin dashboard</li>
-              <li>✓ Dedicated support</li>
-            </ul>
-            <a
-              href="#footer-contact"
-              onClick={(e) => smoothScroll(e, "#footer-contact")}
-            >
-              <button className="btn btn-secondary btn-full">
+
+            {/* Enterprise Plan */}
+            <div className="p-8 rounded-3xl border border-border bg-card shadow-sm flex flex-col">
+              <h3 className="text-2xl font-bold mb-2">Enterprise</h3>
+              <p className="text-muted-foreground mb-6">For teams and institutions</p>
+              <div className="mb-6 flex items-baseline">
+                <span className="text-4xl font-extrabold">$</span>
+                <div className="relative h-[40px] overflow-hidden inline-block w-[48px]">
+                  <AnimatePresence mode="popLayout">
+                    <motion.span
+                      key={isAnnual ? "79" : "99"}
+                      initial={{ y: 40, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: -40, opacity: 0 }}
+                      transition={{ duration: 0.3, type: "spring", bounce: 0.4 }}
+                      className="inline-block text-4xl font-extrabold absolute"
+                    >
+                      {isAnnual ? "79" : "99"}
+                    </motion.span>
+                  </AnimatePresence>
+                </div>
+                <span className="text-muted-foreground ml-1">/month</span>
+              </div>
+              <ul className="space-y-4 mb-8 flex-1">
+                <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /> <span>Everything in Professional</span></li>
+                <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /> <span>Custom AI model fine-tuning</span></li>
+                <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /> <span>Team collaboration tools</span></li>
+                <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /> <span>Analytics dashboard</span></li>
+                <li className="flex items-center gap-3"><Check className="w-5 h-5 text-primary" /> <span>Dedicated account manager</span></li>
+              </ul>
+              <button onClick={() => setIsAuthOpen(true)} className="w-full py-3 rounded-xl font-medium border-2 border-border hover:border-primary hover:text-primary transition-colors">
                 Contact Sales
               </button>
-            </a>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="footer">
-        <div className="footer-content">
-          <div className="footer-section">
-            <h4>Product</h4>
-            <ul>
-              <li>
-                <a
-                  href="#features"
-                  onClick={(e) => smoothScroll(e, "#features")}
-                >
-                  Features
+      <footer className="bg-secondary/30 border-t border-border pt-16 pb-8">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+            <div className="col-span-1 md:col-span-2">
+              <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent mb-4 inline-block">
+                Unbound
+              </div>
+              <p className="text-muted-foreground mb-6 max-w-sm">
+                Transforming static textbooks into dynamic, intelligent learning platforms with built-in AI tutoring.
+              </p>
+              <div className="flex gap-4">
+                <a href="#" className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-colors">
+                  <Twitter className="w-5 h-5" />
                 </a>
-              </li>
-              <li>
-                <a href="#pricing" onClick={(e) => smoothScroll(e, "#pricing")}>
-                  Pricing
+                <a href="#" className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-colors">
+                  <Github className="w-5 h-5" />
                 </a>
-              </li>
-            </ul>
-          </div>
-          <div className="footer-section">
-            <h4>Company</h4>
-            <ul>
-              <li>
-                <a href="#">About</a>
-              </li>
-              <li>
-                <a href="#">Careers</a>
-              </li>
-            </ul>
-          </div>
-          <div className="footer-section" id="footer-contact">
-            <h4>Legal</h4>
-            <ul>
-              <li>
-                <a href="#">Privacy</a>
-              </li>
-              <li>
-                <a href="#">Terms</a>
-              </li>
-            </ul>
-          </div>
-          <div className="footer-section">
-            <h4>Follow Us</h4>
-            <div className="social-links">
-              <a href="#">Twitter</a>
-              <a href="#">LinkedIn</a>
-              <a href="#">GitHub</a>
+                <a href="#" className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-colors">
+                  <Linkedin className="w-5 h-5" />
+                </a>
+              </div>
             </div>
-            <ul style={{ marginTop: "1rem" }}>
-              <li>
-                <a href="#">Contact</a>
-              </li>
-            </ul>
+            
+            <div>
+              <h4 className="font-semibold mb-4">Product</h4>
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                <li><a href="#features" onClick={(e) => smoothScroll(e, "#features")} className="hover:text-primary transition-colors">Features</a></li>
+                <li><a href="#pricing" onClick={(e) => smoothScroll(e, "#pricing")} className="hover:text-primary transition-colors">Pricing</a></li>
+                <li><a href="#working" onClick={(e) => smoothScroll(e, "#working")} className="hover:text-primary transition-colors">How it Works</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">Changelog</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold mb-4">Legal</h4>
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                <li><a href="#" className="hover:text-primary transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">Cookie Policy</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">Contact Us</a></li>
+              </ul>
+            </div>
           </div>
-        </div>
-        <div className="footer-bottom">
-          <p>
-            &copy; 2026 Unbound. All rights reserved. Transforming education,
-            one PDF at a time.
-          </p>
+          
+          <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-sm text-muted-foreground">
+              &copy; {new Date().getFullYear()} Unbound. All rights reserved.
+            </div>
+            <div className="text-sm text-muted-foreground flex items-center gap-1">
+              Made with <span className="text-red-500">♥</span> for learners everywhere
+            </div>
+          </div>
         </div>
       </footer>
 
-      {/* Auth Modal */}
-      <div
-        id="auth-modal"
-        className={`modal ${isAuthOpen ? "active" : ""}`}
-        onClick={(e) => {
-          if ((e.target as HTMLElement).classList.contains("modal-overlay")) {
-            setIsAuthOpen(false);
-          }
-        }}
-      >
-        <div className="modal-overlay"></div>
-        <div className="modal-container">
-          <button
-            className="modal-close"
-            aria-label="Close modal"
-            onClick={() => setIsAuthOpen(false)}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-
-          <div className="auth-header">
-            <h2 id="auth-title">
-              {isSignUp ? "Create Account" : "Welcome Back"}
-            </h2>
-            <p id="auth-subtitle">
-              {isSignUp
-                ? "Start your learning journey today"
-                : "Sign in to continue your learning journey"}
-            </p>
-          </div>
-
-          <form
-            id="auth-form"
-            className="auth-form"
-            onSubmit={(e) => e.preventDefault()}
-          >
-            {/* Name field (hidden by default for login) */}
-            {isSignUp && (
-              <div className="form-group" id="name-group">
-                <label htmlFor="name">Full Name</label>
-                <div className="input-wrapper">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="input-icon"
-                  >
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                  </svg>
-                  <input type="text" id="name" placeholder="John Doe" />
-                </div>
-              </div>
-            )}
-
-            <div className="form-group">
-              <label htmlFor="email">Email</label>
-              <div className="input-wrapper">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="input-icon"
-                >
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                  <polyline points="22,6 12,13 2,6"></polyline>
-                </svg>
-                <input
-                  type="email"
-                  id="email"
-                  placeholder="you@example.com"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <div className="input-wrapper">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="input-icon"
-                >
-                  <rect
-                    x="3"
-                    y="11"
-                    width="18"
-                    height="11"
-                    rx="2"
-                    ry="2"
-                  ></rect>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                </svg>
-                <input
-                  type="password"
-                  id="password"
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              className="btn btn-primary btn-full submit-btn"
-            >
-              {isSignUp ? "Sign Up" : "Sign In"}
-            </button>
-          </form>
-
-          <div className="auth-footer">
-            <p id="auth-switch-text">
-              {isSignUp
-                ? "Already have an account? "
-                : "Don't have an account? "}
-              <button
-                id="auth-switch-btn"
-                className="text-btn"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setIsSignUp(!isSignUp);
-                }}
-              >
-                {isSignUp ? "Sign In" : "Sign up"}
-              </button>
-            </p>
-          </div>
-        </div>
-      </div>
-    </>
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+    </div>
   );
 }
