@@ -21,9 +21,10 @@ app.use(cookieParser())
 
 // import routes
 import bookRoutes from "./routes/book.routes.ts";
-
+import authRoutes from "./routes/auth.routes.ts";
 
 // use routes
+app.use('/api/auth', authRoutes)
 app.use('/api/books', bookRoutes)
 
 app.use('/api/uploadthing', createRouteHandler({
