@@ -11,18 +11,22 @@ import {
   ChevronRight
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import api from "@/lib/api";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [recentDocs, setRecentDocs] = useState<any[]>([]);
 
-  // If user unauthenticates, dashboard should ideally have a protected route wrapper, 
-  // but we can fast-fail here.
   useEffect(() => {
     if (!loading && !user) {
       router.push("/");
+    } else if (user) {
+      api.get("/books").then(res => {
+        setRecentDocs(res.data.slice(0, 3));
+      }).catch(err => console.error("Could not fetch recent docs", err));
     }
   }, [user, loading, router]);
 
@@ -39,12 +43,6 @@ export default function DashboardPage() {
     { title: "Questions Asked", value: "48", icon: MessageSquare, color: "text-indigo-500", bg: "bg-indigo-500/10" },
     { title: "Quizzes Taken", value: "12", icon: BrainCircuit, color: "text-purple-500", bg: "bg-purple-500/10" },
     { title: "Learning Score", value: "94%", icon: Activity, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-  ];
-
-  const recentDocs = [
-    { id: 1, title: "Biology_101_Syllabus.pdf", date: "2 hours ago", size: "2.4 MB" },
-    { id: 2, title: "Machine_Learning_Notes.pdf", date: "Yesterday", size: "5.1 MB" },
-    { id: 3, title: "Historical_Events_Summary.pdf", date: "3 days ago", size: "1.2 MB" },
   ];
 
   return (
@@ -91,7 +89,27 @@ export default function DashboardPage() {
         {/* Upload Zone */}
         <div className="lg:col-span-2 space-y-6">
           <h2 className="text-xl font-bold">Quick Upload</h2>
-          <div className="border-2 border-dashed border-border rounded-3xl p-10 flex flex-col items-center justify-center text-center bg-card/30 hover:bg-card/50 transition-colors cursor-pointer group">
+          <div className="border-2 border-dashed border-border rounded-3xl p-10 flex flex-col items-center justify-center text-center bg-card/30 hover:bg-card/50 transition-colors cursor-pointer group relative">
+            <input 
+              type="file" 
+              accept=".pdf"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              onChange={async (e) => {
+                if (e.target.files && e.target.files[0]) {
+                  try {
+                    // For UI purposes, we're mocking the actual file upload URL right now
+                    // Normally this is uploaded to UploadThing/S3 first, then API is called.
+                    const res = await api.post("/books", {
+                      title: e.target.files[0].name,
+                      fileUrl: "https://mock-s3-url.com/" + e.target.files[0].name
+                    });
+                    router.push("/dashboard/library");
+                  } catch (error) {
+                    console.error("Failed to upload book", error);
+                  }
+                }
+              }}
+            />
             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
               <UploadCloud className="w-8 h-8 text-primary" />
             </div>
@@ -115,12 +133,13 @@ export default function DashboardPage() {
           </div>
           
           <div className="space-y-3">
-            {recentDocs.map((doc, idx) => (
+            {recentDocs.length > 0 ? recentDocs.map((doc, idx) => (
               <motion.div 
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 + (idx * 0.1) }}
-                key={doc.id} 
+                key={doc._id} 
+                onClick={() => router.push(`/dashboard/book/${doc._id}`)}
                 className="p-4 rounded-xl bg-card border border-border flex items-center gap-4 group hover:border-primary/50 transition-colors cursor-pointer"
               >
                 <div className="p-2 rounded-lg bg-red-500/10 text-red-500">
@@ -129,13 +148,17 @@ export default function DashboardPage() {
                 <div className="flex-1 overflow-hidden">
                   <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">{doc.title}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-muted-foreground">{doc.size}</span>
+                    <span className="text-xs text-muted-foreground">{doc.processingStatus}</span>
                     <span className="w-1 h-1 rounded-full bg-border"></span>
-                    <span className="text-xs text-muted-foreground">{doc.date}</span>
+                    <span className="text-xs text-muted-foreground">{new Date(doc.createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>
               </motion.div>
-            ))}
+            )) : (
+               <div className="p-4 rounded-xl bg-card border border-dashed border-border text-center text-sm text-muted-foreground">
+                 No recent documents. Upload one to get started!
+               </div>
+            )}
           </div>
 
           {/* Quick Action */}
