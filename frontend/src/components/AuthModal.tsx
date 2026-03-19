@@ -53,144 +53,133 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
+          
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md z-50 p-6"
+            className="relative w-full max-w-md bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
           >
-            <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden relative">
-              <button
+            {/* Header */}
+            <div className="flex justify-between items-center p-6 border-b border-white/5">
+              <h2 className="text-xl font-light text-white tracking-wide">
+                {isLogin ? "Welcome Back" : "Join Unbound"}
+              </h2>
+              <button 
                 onClick={onClose}
-                className="absolute top-4 right-4 p-2 rounded-full hover:bg-secondary text-muted-foreground transition-colors"
+                className="text-gray-400 hover:text-white transition-colors"
+                aria-label="Close"
               >
-                <X className="w-5 h-5" />
+                <X size={20} />
               </button>
+            </div>
 
-              <div className="p-8">
-                <div className="text-center mb-8">
-                  <h2 className="text-2xl font-bold mb-2">
-                    {isLogin ? "Welcome back" : "Create an account"}
-                  </h2>
-                  <p className="text-muted-foreground">
-                    {isLogin
-                      ? "Enter your details to access your account"
-                      : "Start transforming your learning experience"}
-                  </p>
+            {/* Body */}
+            <div className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {!isLogin && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-xs text-gray-400 uppercase tracking-wider">First Name</label>
+                      <div className="relative">
+                        <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
+                        <input
+                          type="text"
+                          name="firstName"
+                          value={formData.firstName}
+                          onChange={handleChange}
+                          className="w-full bg-[#111] border border-white/10 text-white text-sm rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all placeholder:text-gray-600"
+                          placeholder="John"
+                          required={!isLogin}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs text-gray-400 uppercase tracking-wider">Last Name</label>
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        className="w-full bg-[#111] border border-white/10 text-white text-sm rounded-lg px-4 py-3 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all placeholder:text-gray-600"
+                        placeholder="Doe"
+                        required={!isLogin}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <label className="text-xs text-gray-400 uppercase tracking-wider">Email</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="w-full bg-[#111] border border-white/10 text-white text-sm rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all placeholder:text-gray-600"
+                      placeholder="name@example.com"
+                      required
+                    />
+                  </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {!isLogin && (
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">First Name</label>
-                        <div className="relative">
-                          <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                          <input
-                            type="text"
-                            name="firstName"
-                            value={formData.firstName}
-                            onChange={handleChange}
-                            required
-                            className="w-full pl-10 pr-4 py-2 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                            placeholder="John"
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Last Name</label>
-                        <div className="relative">
-                          <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                          <input
-                            type="text"
-                            name="lastName"
-                            value={formData.lastName}
-                            onChange={handleChange}
-                            required
-                            className="w-full pl-10 pr-4 py-2 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                            placeholder="Doe"
-                          />
-                        </div>
-                      </div>
-                    </div>
+                <div className="space-y-2">
+                  <label className="text-xs text-gray-400 uppercase tracking-wider">Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
+                    <input
+                      type="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="w-full bg-[#111] border border-white/10 text-white text-sm rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all placeholder:text-gray-600"
+                      placeholder="••••••••"
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-all mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      {isLogin ? "Sign In" : "Create Account"}
+                      <ArrowRight className="w-4 h-4" />
+                    </>
                   )}
+                </button>
+              </form>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Email</label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        className="w-full pl-10 pr-4 py-2 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                        placeholder="you@example.com"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <label className="text-sm font-medium">Password</label>
-                      {isLogin && (
-                        <a href="#" className="text-xs text-primary hover:underline">
-                          Forgot password?
-                        </a>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                      <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                        className="w-full pl-10 pr-4 py-2 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-                        placeholder="••••••••"
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full py-3 rounded-xl font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 mt-6 disabled:opacity-70 disabled:cursor-not-allowed"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <>
-                        {isLogin ? "Sign In" : "Create Account"}
-                        <ArrowRight className="w-5 h-5" />
-                      </>
-                    )}
-                  </button>
-                </form>
-
-                <div className="mt-6 text-center text-sm text-muted-foreground">
-                  {isLogin ? "Don't have an account? " : "Already have an account? "}
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-400">
+                  {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
                   <button
                     onClick={() => setIsLogin(!isLogin)}
-                    className="text-primary font-medium hover:underline"
+                    className="text-orange-400 hover:text-orange-300 font-medium transition-colors ml-1"
                   >
-                    {isLogin ? "Sign up" : "Sign in"}
+                    {isLogin ? "Sign up" : "Log in"}
                   </button>
-                </div>
+                </p>
               </div>
             </div>
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   );
